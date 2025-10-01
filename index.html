@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RO Item Description Editor By Morroc Stuido</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+	
+	
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+      color: #333;
+    }
+	
+	
+
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+      color: white;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .header h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .header p {
+      font-size: 1.1rem;
+      opacity: 0.9;
+    }
+
+    .main-container {
+      display: grid;
+      grid-template-columns: 400px 1fr;
+      gap: 25px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .editor-section {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 16px;
+      padding: 25px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      border: 1px solid rgba(255,255,255,0.3);
+    }
+
+    .preview-section {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .preview-box {
+      position: relative;
+      width: 100%;
+      height: 200%;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      background: url('title.png') no-repeat;
+      background-size: 100% 100%;
+      overflow: hidden;
+      transition: transform 0.3s ease;
+    }
+
+
+
+    .preview-image {
+      position: absolute;
+      top: 15px;
+      left: 13px;
+      width: 80px;
+      height: 80px;
+      object-fit: contain;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      background: rgba(0,0,0,0.05);
+    }
+
+    .item-name {
+      position: absolute;
+      top: 16px;
+      left: 130px;
+      right: 15px;
+      font-weight: 600;
+      font-size: 14px;
+      color: #2c3e50;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .preview-text {
+      position: absolute;
+      top: 50px;
+      left: 130px; /* Adjusted to move text slightly to the right */
+      right: 15px;
+      bottom: 20px;
+      color: #2c3e50;
+      white-space: pre-wrap;
+      font-size: 13px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      word-wrap: break-word;
+      line-height: 1.5em;
+      scrollbar-width: thin;
+    }
+
+    .preview-text::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .preview-text::-webkit-scrollbar-track {
+      background: rgba(0,0,0,0.1);
+      border-radius: 3px;
+    }
+
+    .preview-text::-webkit-scrollbar-thumb {
+      background: rgba(0,0,0,0.3);
+      border-radius: 3px;
+    }
+
+    .section-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #2c3e50;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #e9ecef;
+    }
+
+    .color-tools {
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 25px;
+      border: 1px solid rgba(102, 126, 234, 0.2);
+    }
+
+    .color-tools h4 {
+      margin-bottom: 20px;
+      color: #2c3e50;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .color-categories {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .color-category {
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 12px;
+      padding: 15px;
+      border: 1px solid rgba(0,0,0,0.1);
+    }
+
+    .category-title {
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: #2c3e50;
+      opacity: 0.8;
+    }
+
+    .color-presets {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+      gap: 8px;
+    }
+
+    .color-preset {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 10px 8px;
+      background: white;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: 2px solid transparent;
+      font-size: 10px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .color-preset:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+      border-color: rgba(102, 126, 234, 0.3);
+    }
+
+    .color-preset:active {
+      transform: translateY(-1px);
+    }
+
+    .color-preset.active {
+      border-color: #667eea;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    .color-preview {
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      margin-bottom: 6px;
+      border: 2px solid rgba(0,0,0,0.1);
+      transition: all 0.3s ease;
+    }
+
+    .color-preset:hover .color-preview {
+      transform: scale(1.1);
+    }
+
+    .color-name {
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+
+    .color-code {
+      font-family: 'Courier New', monospace;
+      font-size: 9px;
+      opacity: 0.7;
+    }
+
+    .custom-color-section {
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 12px;
+      padding: 15px;
+      border: 1px solid rgba(0,0,0,0.1);
+    }
+
+    .custom-color {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .custom-color input[type="color"] {
+      width: 60px;
+      height: 40px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      background: transparent;
+    }
+
+    .custom-color-info {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      flex: 1;
+    }
+
+    .custom-color-code {
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
+      font-weight: 600;
+      color: #2c3e50;
+      background: #e5e7eb;
+      padding: 6px 10px;
+      border-radius: 6px;
+    }
+
+    .custom-color-rgb {
+      font-size: 11px;
+      color: #666;
+      font-family: 'Courier New', monospace;
+    }
+
+    .insert-custom-btn {
+      padding: 8px 16px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .insert-custom-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #2c3e50;
+      font-size: 14px;
+    }
+
+    .description-editor {
+      position: relative;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 300px;
+      padding: 15px;
+      border: 2px solid #e9ecef;
+      border-radius: 12px;
+      font-size: 14px;
+      font-family: 'Courier New', monospace;
+      line-height: 1.5;
+      transition: all 0.3s ease;
+      background: #ffffff; /* Changed to solid white for better text visibility */
+      color: #2c3e50; /* Added to ensure text is dark and readable */
+      resize: vertical;
+    }
+
+    textarea:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      background: white;
+    }
+
+    .editor-toolbar {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+
+    .toolbar-btn {
+      padding: 8px 12px;
+      background: rgba(102, 126, 234, 0.1);
+      border: 1px solid rgba(102, 126, 234, 0.3);
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+      transition: all 0.3s ease;
+      color: #2c3e50;
+    }
+
+    .toolbar-btn:hover {
+      background: rgba(102, 126, 234, 0.2);
+      transform: translateY(-1px);
+    }
+
+    .copy-btn {
+      padding: 12px 24px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      width: 100%;
+      margin-top: 15px;
+    }
+
+    .copy-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+    }
+
+    .copy-btn:active {
+      transform: translateY(0);
+    }
+
+    .status-indicator {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      background: #27ae60;
+      border-radius: 50%;
+      margin-left: 10px;
+      animation: pulse 2s infinite;
+    }
+
+    .hex-code {
+      cursor: pointer;
+      padding: 2px 4px;
+      border-radius: 4px;
+      transition: background-color 0.2s ease;
+    }
+
+    .hex-code:hover {
+      background-color: rgba(102, 126, 234, 0.2);
+    }
+
+    @keyframes pulse {
+      0% { opacity: 1; }
+      50% { opacity: 0.5; }
+      100% { opacity: 1; }
+    }
+
+    @media (max-width: 768px) {
+      .main-container {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+      
+      .header h1 {
+        font-size: 2rem;
+      }
+
+      .color-presets {
+        grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+      }
+    }
+
+    .insert-custom-btn {
+      transition: background-color 0.3s ease, color 0.3s ease;
+      padding: 10px 20px;
+      cursor: pointer;
+    }
+
+    .insert-custom-btn.copied {
+      background-color: #4CAF50;
+      color: white;
+    }
+
+	
+#idDesc {
+  width: 100%;
+  height: 150px;
+  padding: 15px;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: 'Courier New', monospace;
+  background-color: black;
+  color: white;
+  line-height: 1;
+  resize: vertical;
+}
+
+#preview {
+  white-space: pre-wrap;
+  border: 1px solid #ccc;
+  padding: 10px;
+  background: #fff;
+  min-height: 150px;
+  margin-top: 10px;
+}
+
+.hex-code {
+  all: unset;
+  color: inherit;
+  cursor: pointer;
+}
+  
+  
+}
+
+#idDesc::placeholder {
+  color: #aaa; /* Placeholder text color */
+}
+  </style>
+</head>
+<body>
+  <div class="header">
+<style>
+  .blinking-link {
+    color: lime;
+    text-decoration: underline;
+    font-weight: bold;
+
+  }
+
+
+</style>
+
+<h1>🎮 Item Description V.1 By Morroc-Studio <a href="Item Description V.1 By Morr" target="_blank" class="blinking-link">(Enter Shop)</a></h1>
+
+  </div>
+
+  <div class="main-container">
+    <div class="preview-section">
+      <div class="preview-box">
+        <div class="item-name" id="previewName">Preview คำอธิบายไอเท็ม</div>
+        <div class="preview-text" id="previewContent"></div>
+      </div>
+    </div>
+
+    <div class="editor-section">
+      <div class="color-tools">
+        <h4>🌈 Color Palette</h4>
+        
+        <div class="color-categories">
+          <div class="color-category">
+            <div class="category-title">Custom Color</div>
+            <div class="custom-color-section">
+              <div class="custom-color">
+                <input type="color" id="customColor" value="#000000">                <button id="btnCustomColor" class="insert-custom-btn" onclick="Copycustomcolor()">Copy Color Code</button>
+                <button id="btn000000" class="insert-custom-btn" onclick="Copy000000()">Copy ^000000</button>
+                <div class="custom-color-info">
+                  <div class="custom-color-code" id="colorCode">^000000</div>
+                  <div class="custom-color-rgb" id="colorRgb">RGB(0, 0, 0)</div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+  <type="text" id="itemName" value="ไอเท็มตัวอย่าง" >
+
+
+
+      <div class="description-editor">
+        <div class="editor-toolbar">
+        </div>
+        
+        <label for="idDesc">Edit Description</label>
+        <textarea id="idDesc" placeholder="Enter your item description here... Use the color tools above to add colors.">
+: : :^3333FF Y^F637E6O^37F6E9U^F6CC37R^FF0099-R^3333FFO^000000 : : :
+^FF4000คอสตูมสัตว์ประหลาด v.1^000000
+ช่องสวมใส่ : ^B5A6A6 Costume Garment^000000
+อาชีพที่ใช้ได้ : ^B5A6A6 All^000000
+———————————————
+คุณสมบัติ :
+โจมตีทุกขนาดแรงขึ้น  + ^FF00005%^000000
+เพิ่ม EXP  + ^FF00005%^000000
+เพิ่ม Drop  + ^FF00005%^000000
+เพิ่มน้ำหนัก  + ^FF0000500^000000
+———————————————
+คุณสมบัติพิเศษ :
+สามารถ ^51A3E1Enchant Grade^000000 ได้
+———————————————
+^00CC00Grade D^000000
+Drop + ^FF00005%^000000
+EXP + ^FF00005%^000000
+———————————————
+^0033FFGrade C^000000
+Cri + ^FF00003^000000
+Aspd + ^FF00005%^000000
+Cridmg + ^FF00005%^000000
+———————————————
+^FF9900Grade B^000000
+ATK + ^FF000010%^000000
+MATK + ^FF000010%^000000
+———————————————
+^FF0000Grade A^000000
+Allstats + ^FF00002^000000
+ลดดีเลย์สกิล  + ^FF00005%^000000</textarea>
+		  </div>
+<button onclick="undo()">↩️ Undo</button>
+<button onclick="redo()">↪️ Redo</button>
+		  <button class="copy-btn" onclick="copyDescription()">📋 Copy Description Script</button>
+		  
+		</div>
+	  </div>
+
+	  <script>
+		let lastFocusedTextarea = null;
+let selectedColorPreset = null;
+let activeColorCode = null;
+let history = [];
+let redoStack = [];
+
+function debounce(func, wait) {
+  let timeout;
+  return function executedFunction(...args) {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func(...args), wait);
+  };
+}
+
+function colorizeText(text) {
+  if (!text) return 'Item description will appear here...';
+  
+  let colorizedText = text;
+  let openTags = [];
+  
+  colorizedText = colorizedText.replace(/\^([0-9A-Fa-f]{6})/g, (match, colorCode) => {
+    if (colorCode === '000000') {
+      let closeTags = '';
+      while (openTags.length > 0) {
+        openTags.pop();
+        closeTags += '</span>';
+      }
+      return closeTags;
+    } else {
+      const colorTag = `<span class="hex-code" data-color="${colorCode}" style="color:#${colorCode}" onclick="changeColorCode(event)">`;
+      openTags.push(colorCode);
+      return colorTag;
+    }
+  });
+
+  while (openTags.length > 0) {
+    colorizedText += '</span>';
+    openTags.pop();
+  }
+
+  return colorizedText;
+}
+
+function updatePreview() {
+  const itemName = document.getElementById('itemName').value || 'Preview ไอเท็มตัวอย่าง';
+  const idDesc = document.getElementById('idDesc').value || '';
+  document.getElementById('previewName').textContent = itemName;
+  document.getElementById('previewContent').innerHTML = colorizeText(idDesc);
+}
+
+function changeColorCode(event) {
+  const colorCode = event.target.dataset.color.toUpperCase();
+  const textarea = document.getElementById('idDesc');
+  const colorInput = document.getElementById('customColor');
+
+  activeColorCode = colorCode;
+  colorInput.value = `#${colorCode}`;
+  updateColorCode();
+  colorInput.click(); // open color picker
+
+  // Real-time input binding
+  colorInput.oninput = function () {
+    if (!activeColorCode) return;
+    saveHistory(); // before applying new color
+    const newColor = colorInput.value.substring(1).toUpperCase();
+    const text = textarea.value;
+    const regex = new RegExp(`\\^${activeColorCode}`, 'g');
+    textarea.value = text.replace(regex, `^${newColor}`);
+    activeColorCode = newColor;
+    updateColorCode();
+    updatePreview();
+  };
+}
+
+function updateColorCode() {
+  const colorInput = document.getElementById('customColor');
+  const colorCode = document.getElementById('colorCode');
+  const colorRgb = document.getElementById('colorRgb');
+
+  const hexColor = colorInput.value.substring(1).toUpperCase();
+  colorCode.textContent = `^${hexColor}`;
+
+  const rgb = hexToRgb(colorInput.value);
+  if (rgb) {
+    colorRgb.textContent = `RGB(${rgb.r}, ${rgb.g}, ${rgb.b})`;
+  }
+}
+
+function hexToRgb(hex) {
+  hex = hex.replace('#', '');
+  if (hex.length !== 6) return null;
+  const bigint = parseInt(hex, 16);
+  return {
+    r: (bigint >> 16) & 255,
+    g: (bigint >> 8) & 255,
+    b: bigint & 255
+  };
+}
+
+function animateButton(button, copiedText) {
+  const originalText = button.innerHTML;
+  button.innerHTML = '✅ Copied!';
+  button.disabled = true;
+  button.classList.add('copied');
+  setTimeout(() => {
+    button.innerHTML = originalText;
+    button.disabled = false;
+    button.classList.remove('copied');
+  }, 500);
+}
+
+function Copycustomcolor() {
+  const colorCode = document.getElementById('colorCode').textContent.trim();
+  navigator.clipboard.writeText(colorCode)
+    .then(() => animateButton(document.getElementById('btnCustomColor'), colorCode))
+    .catch(err => console.error('Failed to copy: ', err));
+}
+
+function Copy000000() {
+  navigator.clipboard.writeText('^000000')
+    .then(() => animateButton(document.getElementById('btn000000'), '^000000'))
+    .catch(err => console.error('Failed to copy: ', err));
+}
+
+// ==== Undo/Redo ====
+
+function saveHistory() {
+  const current = document.getElementById('idDesc').value;
+  if (history.length === 0 || history[history.length - 1] !== current) {
+    history.push(current);
+    redoStack = []; // clear redo on new change
+  }
+}
+
+function undo() {
+  if (history.length > 1) {
+    const current = history.pop();
+    redoStack.push(current);
+    const prev = history[history.length - 1];
+    document.getElementById('idDesc').value = prev;
+    updatePreview();
+  }
+}
+
+function redo() {
+  if (redoStack.length > 0) {
+    const next = redoStack.pop();
+    history.push(next);
+    document.getElementById('idDesc').value = next;
+    updatePreview();
+  }
+}
+
+// Save history on every input
+document.addEventListener('DOMContentLoaded', () => {
+  const textarea = document.getElementById('idDesc');
+  textarea.addEventListener('input', debounce(() => {
+    saveHistory();
+    updatePreview();
+  }, 200));
+});
+		
+	
+	
+	function hexToRgb(hex) {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result ? {
+    r: parseInt(result[1], 16),
+    g: parseInt(result[2], 16),
+    b: parseInt(result[3], 16)
+  } : null;
+}
+function insertText(text) {
+  const textarea = document.getElementById('idDesc');
+  const start = textarea.selectionStart;
+  const end = textarea.selectionEnd;
+  const currentText = textarea.value;
+
+  textarea.value = currentText.substring(0, start) + text + currentText.substring(end);
+  textarea.selectionStart = textarea.selectionEnd = start + text.length;
+  textarea.focus();
+
+  updatePreview();
+}
+function copyDescription() {
+  const textarea = document.getElementById('idDesc');
+  const rawText = textarea.value;
+
+  // Split into lines and wrap each in quotes
+  const lines = rawText
+    .split('\n')
+    .map(line => `"${line}"`);
+
+  // Join with commas and newlines (EXCEPT last line has no comma)
+  const finalText = lines.join(',\n');
+
+  navigator.clipboard.writeText(finalText)
+    .then(() => {
+      const copyBtn = document.querySelector('.copy-btn');
+      const originalText = copyBtn.textContent;
+      copyBtn.textContent = '✅ Copied to Clipboard!';
+      copyBtn.style.background = '#27ae60';
+
+      setTimeout(() => {
+        copyBtn.textContent = originalText;
+        copyBtn.style.background = '';
+      }, 2000);
+    })
+    .catch(err => {
+      console.error('Failed to copy: ', err);
+    });
+}
+
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      updatePreview();
+      updateColorCode();
+      
+      const textarea = document.getElementById('idDesc');
+      textarea.focus();
+      lastFocusedTextarea = textarea;
+      
+      const updatePreviewDebounced = debounce(updatePreview, 100);
+      
+      document.getElementById('idDesc').addEventListener('input', updatePreviewDebounced);
+      document.getElementById('itemName').addEventListener('input', updatePreviewDebounced);
+      document.getElementById('customColor').addEventListener('input', updateColorCode);
+      
+      textarea.addEventListener('focus', function() {
+        lastFocusedTextarea = this;
+      });
+    });
+  </script>
+</body>
+</html>
