@@ -1,1 +1,1 @@
-Goodday
+https://discord.gg/r6Xx74utDA
